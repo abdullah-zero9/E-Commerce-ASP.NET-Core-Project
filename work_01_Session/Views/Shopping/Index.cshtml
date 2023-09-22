@@ -1,0 +1,179 @@
+﻿@model IEnumerable<Product>
+@{
+    ViewData["Title"] = "Index";
+}
+@using work_01_Session.Models
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor _httpContextAccessor
+
+@{
+    List<Product> productList = _httpContextAccessor.HttpContext.Session.GetObject<List<Product>>("cart");
+    double count = 0;
+    if (productList != null)
+    {
+        foreach (var item in productList)
+        {
+            count += item.Quantity;
+        }
+    }
+    else
+    {
+        productList = new List<Product>();
+    }
+}
+@*@{
+    var dbContext = (ECommerceDbContext)ViewBag.DbContext;
+    List<Product> productList = _httpContextAccessor.HttpContext.Session.GetObject<List<Product>>("cart");
+    double count = 0;
+    if (productList != null)
+    {
+        foreach (var item in productList)
+        {
+            var product = dbContext.Products.FirstOrDefault(p => p.Id == item.Id);
+            if (product != null)
+            {
+                count += item.Quantity;
+            }
+        }
+    }
+    else
+    {
+        productList = new List<Product>();
+    }
+}*@
+
+
+
+<div class="row">
+    <div class="display-4 class= col-10 alert alert-secondary">Shopping Here....</div>
+    <div class="col-2 justify-content-end mb-10">
+        <a asp-action="ShowCart" asp-controller="Shopping" style="text-decoration:none; position: relative; display: inline-block;">
+            <img src="~/images/cart.jpg" width="90" class="img-fluid" alt="Cart" />
+            <span style="position: absolute; top: 7px; right: 7px; background-color: white; color: red; font-size: 16px; padding: 2px 8px; border-radius: 50%;">@count</span>
+        </a>
+    </div>
+
+</div>
+<div class="row mb-2">
+    <div class="col-10">
+        @if (TempData["msg"] != null)
+        {
+            <h2 class="alert alert-info text-center">@TempData["msg"]</h2>
+        }
+    </div>
+</div>
+<div class="row">
+    @foreach (var item in Model)
+    {
+        <div class="col-lg-3 col-sm-6 mb-4">
+            <div class="card border-secondary border-2">
+                <div class="product-image">
+                    <img src="~/Images/@item.Image" alt="Product Image" />
+                </div>
+                <div class="card-body">
+                    <h4 class="card-title text-center text-primary text-capitalize text-decoration-underline">@Html.DisplayFor(x => item.Name)</h4>
+                    <p class="card-text"><strong>Unit: </strong>@Html.DisplayFor(x => item.Unit)</p>
+                    @*<p class="card-text"><strong>Price: </strong>@Html.DisplayFor(x => item.Price)</p>*@
+                    <p class="card-text"><strong>Current Stock: </strong>@item.Quantity</p>
+                    <p class="card-text">
+                        <strong>Price: </strong>
+                        <span class="text-decoration-line-through">@Html.DisplayFor(x => item.Price)</span>
+                        @if (item.Price > 0)
+                        {
+                            double discount = item.Price * 0.07;
+                            double discountedPrice = item.Price - discount;
+                            <br />
+                            <strong>Discounted Price: </strong>
+                            <span class="text-success font-weight-bold">@discountedPrice</span>
+                        }
+                    </p>
+
+
+                    <form asp-action="AddToCart" asp-controller="Shopping" method="post">
+                        <input type="hidden" name="pid" value="@item.Id" />
+                        @if (item.Quantity <= 0)
+                        {
+                            <span class="badge bg-danger text-white text-sm" style="margin-right: 5px;">Sold Out</span>
+                            <button type="submit" class="btn btn-outline-success btn-sm" disabled>Add To Cart</button>
+                        }
+                        else
+                        {
+                            <div style="display: flex; align-items: center;">
+                                <input type="number" name="qty" min="1" max="500" class="form-control form-control-sm border-2 border-danger" style="width: 70px;" value="1" />
+                                <button type="submit" class="btn btn-success btn-sm" style="margin-left: 7px;">Add To Cart</button>
+                            </div>
+                        }
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+<style>
+    .product-image {
+        height: 150px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 5px;
+    }
+
+        .product-image img {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+        }
+</style>
+
+
+
+
+
+
+@*<div class="row">
+    @foreach (var item in Model)
+    {
+        <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+            <div class="card border-secondary border-2">
+                <div class="product-image">
+                    <span><img src="~/Images/@item.Image" alt="Product Image" /></span>
+                </div>
+                <div class="card-body">
+                    <h4 class="card-title text-center text-primary text-capitalize text-decoration-underline">@Html.DisplayFor(x => item.Name)</h4>
+                    <p class="card-text"><strong>Unit: </strong>@Html.DisplayFor(x => item.Unit)</p>
+                    <p class="card-text"><strong>Price: </strong>@Html.DisplayFor(x => item.Price)</p>
+                    <p class="card-text"><strong>Current Stock: </strong>@item.Quantity</p>
+                    <form asp-action="AddToCart" asp-controller="Shopping" method="post">
+                        <input type="hidden" name="pid" value="@item.Id" />
+                        @if (item.Quantity <= 0)
+                        {
+                            <span class="badge bg-danger text-white text-sm" style="margin-right: 5px;">Sold Out</span>
+                            <button type="submit" class="btn btn-outline-success btn-sm" disabled>Add To Cart</button>
+                        }
+                        else
+                        {
+                            <div style="display: flex; align-items: center;">
+                                <input type="number" name="qty" min="1" max="500" class="form-control form-control-sm border-2 border-danger" style="width: 60px;" value="1" />
+                                <button type="submit" class="btn btn-success btn-sm" style="margin-left: 5px;">Add To Cart</button>
+                            </div>
+
+                        }
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+<style>
+    .product-image {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #000;
+/*        height: 30px;
+        width: 35px;*/
+    }
+
+        .product-image span {
+            font-weight: bold;
+        }*@

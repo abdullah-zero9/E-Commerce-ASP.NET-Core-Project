@@ -1,0 +1,37 @@
+﻿@model AppUser
+@{
+    ViewData["Title"] = "SignUp";
+}
+<h1 class="display-4">SignUp</h1>
+<div class="row">
+    <div class="col-6">
+        <form asp-action="SignUp" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="row mb-2">
+                <label asp-for="UserName" class="col-form-label"></label>
+                <input asp-for="UserName" class="form-control" />
+                <span asp-validation-for="UserName" class="text-danger"></span>
+            </div>
+            <div class="row mb-2">
+                <label asp-for="Password" class="col-form-label"></label>
+                <input asp-for="Password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="row mb-2">
+                <input type="submit" value="Register" class="btn btn-success btn-sm" />
+            </div>
+        </form>
+    </div>
+    <div class="col-6">
+        @if (TempData["signUp"] != null)
+        {
+            <h2 class="alert alert-success p-3 text-center">@TempData["signUp"]</h2>
+        }
+    </div>
+</div>
+<div>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</div>
+
+
+
